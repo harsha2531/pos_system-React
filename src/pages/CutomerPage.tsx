@@ -1,13 +1,15 @@
-import {useState} from "react";
+import {useReducer, useState} from "react";
 import {customerData} from "../data/CustomerData";
 import type {Customer} from "../types/Customer";
 import CustomerForm from "../forms/CustomerForm";
 import Dialog from "../components/Dialog";
+import customerReducer from "../reducers/customerReducer.ts";
 
 const CustomerPage = () => {
     const [customers, setCustomers] = useState<Customer[]>(customerData);
     const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false)
     const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null)
+    const [customersOnReducer, dispatch] = useReducer(customerReducer,customerData)
 
     const onSubmit = (customer: Customer) => {
         if(editingCustomer !== null)  { // updating
@@ -20,7 +22,11 @@ const CustomerPage = () => {
                     )
             )
         } else { // add
-            setCustomers([...customers, customer])
+            //setCustomers([...customers, customer])
+            dispatch({
+                type: "ADD",
+                payload: customer
+            })
         }
 
         setIsDialogOpen(false)
@@ -38,6 +44,10 @@ const CustomerPage = () => {
     const onDelete = (id: number) => {
         setCustomers((prevState) =>
             prevState.filter((customer) => customer.id !== id))
+            dispatch({
+                type: "DELETE",
+                payload: id
+            })
     }
 
     const onEdit = (customer: Customer) => {
